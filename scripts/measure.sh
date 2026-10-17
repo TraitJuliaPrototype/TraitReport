@@ -1,10 +1,11 @@
 #!/bin/bash
 # Fresh-process timings of TraitReport against the Python baseline.
 #
-#     scripts/measure.sh [runs] [forms]      # default 3 runs; forms "a b" (both)
+#     scripts/measure.sh [runs] [forms]      # default 3 runs; forms "a b" ("p": the plain package, form (a′))
 #
 # Python:  pandas + matplotlib, ../experiments/interfaces/python/app.py, venv at $PYENV.
-# Julia:   form (a) scripts/report_script.jl (env/), form (b) scripts/report_traits.jl (env_b/),
+# Julia:   form (a) scripts/report_script.jl (env/), form (a′) scripts/report_plain.jl (env_p/),
+#          form (b) scripts/report_traits.jl (env_b/),
 #          on stock 1.13.2 and on the patched build, called by the binary, not through juliaup.
 # Each environment must be precompiled first by each Julia (the patched build keeps its own images).
 # The scripts print the absolute times of their marks; startup and exit are taken against this
@@ -43,6 +44,7 @@ phases() {
 for J in "$STOCK" "$PATCHED"; do
     for form in $FORMS; do
         if [ "$form" = a ]; then env=env; script=scripts/report_script.jl; names="imports read summarize plot+PNG"
+        elif [ "$form" = p ]; then env=env_p; script=scripts/report_plain.jl; names="imports report"
         else env=env_b; script=scripts/report_traits.jl; names="imports report"; fi
         echo "-- julia $J, form ($form)"
         for i in $(seq "$RUNS"); do

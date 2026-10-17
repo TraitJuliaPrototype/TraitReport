@@ -19,8 +19,29 @@ TraitMakie has no `barplot` yet, so form (a) draws the histogram as a step line.
 
 - **(a) An ordinary script** (`scripts/report_script.jl`): `using CSV, DataFrames, Statistics, TraitMakie` at the prompt, then plain calls. Only TraitMakie's own code is trait-world code. This is what a user writes today.
 - **(b) A trait-world report** (`src/ReportCore.jl`, `scripts/report_traits.jl`): a small trait module `ReportCore` whose functions call CSV, DataFrames and TraitMakie directly, with a precompile workload from file to PNG. A `DataFrame` cannot conform to a trait, since it is not deeply concrete: its columns are a `Vector{AbstractVector}`. So the report converts it explicitly into a concrete table of its own, named `Vector{Float64}` columns, which the bounds see. Under wrapping by facts, CSV's and DataFrames' code reached from it is compiled under the facts policy and kept in `ReportCore`'s image. A later load can then discard it only where the loaded package is a stakeholder of one of its facts, or brings a pirate that wins at one. This is case D of the design, measured.
+- **(a′) A plain package, the fair baseline** (`PlainReport/`, `scripts/report_plain.jl`): the same report as an ordinary package without traits, with the whole task in its precompile workload. This is plain Julia's standard remedy for time to first X.
 - **(b′) TraitCSV:** a CSV reader written in the trait world, the principled fix for what (b) can only contain (below).
 - **(c) A trimmed binary** of (b): the CSV binary of `../writeup/explorations/aot-under-facts.md` §4. Session 25 deferred it.
+
+## What form (b) shows, and what it does not (session 26)
+
+**On the patched build the plain package is as fast as form (b),** so form (b)'s 1 s demonstrates nothing traits-specific (the user's objection: "Wouldn't that be cheating?").
+
+| | Python | plain package (a′) | trait report (b) |
+|---|---|---|---|
+| stock 1.13.2 | 0.60 s | 1.96–2.04 s (work 1.0 s) | 1.25–1.28 s (work 0.31 s) |
+| patched | | **0.94–1.02 s** (work 0.07 s) | 1.03–1.05 s (work 0.06 s) |
+
+- **The plain package's speed is Julia piece 5.** Without it (patched build, `JULIA_TW_KEEP_COMPILED=0` at its precompilation) the work takes 0.96–0.99 s. Stock Julia does not keep machine code that a downstream package compiled for upstream methods, here CSV's. So piece 5 helps plain Julia as much as the trait world: an argument for the upstream proposal.
+- **Form (b)'s 55 ms came largely from CSV's own image.** CSV calls its heavy internals (`_parse`, `_prepareindexed`, the keyword `read`) at abstract types, so under the policy they are run-time sites and run CSV's native code.
+- **Packages loaded first slow both forms down,** and the trait form more. Work, patched, one coherent environment (`scripts/report_loads.jl`):
+  - after OffsetArrays, StatsBase and Unitful: plain 2.7–2.8 s; trait 5.3–5.7 s (1.7 s with the rule of facts at non-public functions off);
+  - after IntervalArithmetic, Distributions, Interpolations and StaticArrays: plain 2.8 s; trait 5.5 s.
+
+  Two causes:
+  1. CSV's native code is invalidated, as in plain Julia.
+  2. The policy's compiler code in TraitWorld's image fails validation, when packages that add methods to Base functions the Compiler calls at abstract types load before TraitWorld. It is then recompiled (`typeinf_local(::FactsInterp, …)`, 3.5 s). This is open-issues §1.3, decided as "the policy in the platform", and broader than the REPL case it was found with.
+- **What would show the design:** a table and a CSV reader written in the trait world (the user's point). Their code is compiled for concrete column types and kept in their own images, so it is protected from loads whether or not the user's code has a workload. Package extensions such as `CSVInlineStringsExt` become conformances, which cannot discard other keys' code. This replaces form (b′) below with a larger form: TraitTables and TraitCSV.
 
 ## What it demonstrates
 
