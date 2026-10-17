@@ -18,8 +18,8 @@ export Table, ncols, colname, column, Columns, columns, Job, ReportJob, summary_
     column(t::Table, i::Int)::Vector{Float64}
 end
 
-# A DataFrame cannot conform: it is not deeply concrete (its columns are a Vector{AbstractVector}),
-# so code bounded by `Table` would be compiled against columns of unknown type. The report converts
+# A DataFrame could conform with an abstract key (concreteness is opt-in per trait since session 27),
+# but code bounded by `Table` would then dispatch at run time on columns of unknown type. The report converts
 # it explicitly into a concrete table of its own (note "Types that only convert"); a trait-world CSV
 # reader would produce such a table directly.
 "Named columns of numbers: what the report reads a DataFrame into."
