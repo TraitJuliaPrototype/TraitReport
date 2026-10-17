@@ -41,7 +41,7 @@ TraitMakie has no `barplot` yet, so form (a) draws the histogram as a step line.
   Two causes:
   1. CSV's native code is invalidated, as in plain Julia.
   2. The policy's compiler code in TraitWorld's image fails validation, when packages that add methods to Base functions the Compiler calls at abstract types load before TraitWorld. It is then recompiled (`typeinf_local(::FactsInterp, …)`, 3.5 s). This is open-issues §1.3, decided as "the policy in the platform", and broader than the REPL case it was found with.
-- **What would show the design:** a table and a CSV reader written in the trait world (the user's point). Their code is compiled for concrete column types and kept in their own images, so it is protected from loads whether or not the user's code has a workload. Package extensions such as `CSVInlineStringsExt` become conformances, which cannot discard other keys' code. This replaces form (b′) below with a larger form: TraitTables and TraitCSV.
+- **What would show the design** (decided by the user in session 26: TraitTables and TraitCSV, and DataFrames redesigned around traits): a table and a CSV reader written in the trait world. Their code is compiled for concrete column types and kept in their own images, so it is protected from loads whether or not the user's code has a workload. Package extensions such as `CSVInlineStringsExt` become conformances, which cannot discard other keys' code. This replaces form (b′) below with a larger form: TraitTables and TraitCSV.
 
 ## What it demonstrates
 
