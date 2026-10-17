@@ -2,7 +2,7 @@
 
 A data report in a fresh Julia session: read a CSV file into a DataFrame, summarize its columns, plot a histogram to a PNG. This is the third demonstrator. It measures the trait world where Julia users feel time to first plot most, against pandas and matplotlib doing the same task.
 
-Status (session 26, 2026-10-17): forms (a) and (b) are built and measured. Form (b), the trait-world report, takes 1.17–1.20 s on stock 1.13.2. On the patched build its work takes 57 ms, CSV's read included, but its image loads in 1.5 s (row 5). Forms (b′) and (c) are planned. The design is in the design repository (`../writeup/notes/`). How the trait world compiles CSV and DataFrames is case D of `../writeup/notes/3-wrapping.md` ("Four cases"), which no measurement has covered yet.
+Status (session 26, 2026-10-17): forms (a) and (b) are built and measured. **Form (b), the trait-world report, takes 1.01–1.05 s on the patched build** (Python: 0.60 s), and 1.17–1.20 s on stock 1.13.2. On the patched build its work takes 60 ms, CSV's read included, with DataFrames and InlineStrings loaded. Forms (b′) and (c) are planned. The design is in the design repository (`../writeup/notes/`). How the trait world compiles CSV and DataFrames is case D of `../writeup/notes/3-wrapping.md` ("Four cases"), which no measurement has covered yet.
 
 ## The task
 
@@ -49,11 +49,11 @@ The harness is `scripts/measure.sh`: fresh processes, the Julia binary called di
 
 | # | What | Python | Prediction | Measured (session 26; stock 1.13.2, patched in brackets) |
 |---|---|---|---|---|
-| 1 | process start to exit, task done | 0.58–0.61 s | forms (b) and (b′) about 1 s (the bar); form (c) under 0.2 s | (a) 3.80–3.91 s (4.06–4.38 s); **(b) 1.17–1.20 s (1.72–1.77 s)**. Before TraitWorld's fix (row 4): (a) 4.87–5.11 s (5.92–6.02 s) |
-| 2 | phases: startup, imports, then the work, exit | –, 0.40, 0.10 together for read, summary and plot, – | 0.10, ~0.8, ≤ 0.05 for the work, ~0 | (a) 0.10, 0.76–0.82, read 2.62–2.68, summarize 0.12, plot and PNG 0.11, 0.09 (0.10, 1.02–1.08, 2.64–2.74, 0.07, 0.16, 0.07). **(b) 0.10, 0.71–0.74, work 0.27, 0.09 (0.10, 1.50–1.54, work 0.057, 0.065)** |
+| 1 | process start to exit, task done | 0.58–0.62 s | forms (b) and (b′) about 1 s (the bar); form (c) under 0.2 s | (a) 3.79–3.87 s (3.73–3.93 s); **(b) 1.17–1.20 s (1.01–1.05 s)**. Before TraitWorld's fixes (rows 4, 5): (a) 4.87–5.11 s (5.92–6.02 s); (b) patched 1.72–1.77 s |
+| 2 | phases: startup, imports, then the work, exit | –, 0.40, 0.10 together for read, summary and plot, – | 0.10, ~0.8, ≤ 0.05 for the work, ~0 | (a) 0.10, 0.76–0.80, read 2.62–2.65, summarize 0.07–0.12, plot and PNG 0.11, 0.09 (0.10, 0.71–0.74, 2.63–2.78, 0.12, 0.11, 0.07). **(b) 0.10, 0.71–0.72, work 0.27–0.29, 0.09 (0.10, 0.79–0.82, work 0.059–0.065, 0.066–0.069)**. On stock the work compiles the policy's code in each session (no piece 5) |
 | 3 | CSV's first read: CSV alone; with DataFrames before or after | | form (b): the same with or without DataFrames | `CSV.File`: 0.19 s alone; 2.46–2.53 s with DataFrames in either order. Form (b), patched: the whole work 0.057 s with DataFrames and InlineStrings loaded; nothing of CSV's read path is recompiled |
 | 4 | invalidations of ordinary code by TraitWorld's own methods | | none | fixed (TraitWorld 6239b1e, Julia db82407fa6): the two `show(::IO, ::Type{…})` methods cost 1.0 s on CSV's first read; they are now type printers registered with Julia's new registry (`Base.Experimental.register_type_printer`, patched build), which invalidates nothing |
-| 5 | imports, per package: CSV, DataFrames, TraitWorld, TraitMakie, TraitReport, all | 0.40 s (pandas and matplotlib) | patched no slower than stock | before the fix: 0.15, 0.36, 0.12, 0.23, –, 0.82 s (0.15, 0.39, 0.12, 0.69, –, 1.40 s). After: form (a)'s set 0.76–0.82 s (1.02–1.08 s); `using TraitReport` 0.71–0.74 s (1.50–1.54 s). The patched images load slowly: next in the order of work |
+| 5 | imports, per package: CSV, DataFrames, TraitWorld, TraitMakie, TraitReport, all | 0.40 s (pandas and matplotlib) | patched no slower than stock | fixed (TraitWorld, session 26). `using TraitReport`: 0.71–0.72 s stock, 0.79–0.82 s patched; form (a)'s set 0.76–0.80 s (0.71–0.74 s). The cause was not piece 5. TraitWorld's load hooks (piece 1) and package callback were compiled natively, so the loads they watch invalidated them, and they were compiled again four times per load: 0.82 s. They now run under the facts policy. Before: 0.82 s stock, 1.40 s patched for form (a)'s set; TraitMakie alone 0.23 s (0.69 s) |
 | 6 | exit time | – | ~0 | 0.09 s (0.065 s), after TraitWorld's fix: the view cache's exit hook is registered only when something new was compiled. Before: 0.36–0.38 s |
 | 7 | load-order independence: CairoMakie, ChurnStorm, BasePirate, the g2all stack loaded before, after or not at all | | form (b): spread under 10% | not yet |
 | 8 | policy CodeInstances of the report (CSV's and DataFrames' code included) lost by those loads | | 0 | not yet |
@@ -70,7 +70,7 @@ The harness is `scripts/measure.sh`: fresh processes, the Julia binary called di
 
 1. *(Done, session 26.)* **TraitWorld stops invalidating ordinary code (rows 4, 6):** type printers through a new Julia registry instead of `show` methods; the view cache's exit hook only when something is new.
 2. *(Built, session 26; rows 7, 8 open.)* **Form (b),** `ReportCore` with a workload (rows 1–3, 7, 8).
-3. **The patched images' load time (row 5):** why TraitMakie's image loads in 0.69 s on the patched build against 0.23 s on stock. This is Julia work on piece 5.
+3. *(Done, session 26.)* **The patched images' load time (row 5):** the hooks run under the facts policy.
 4. **Form (b′), TraitCSV,** if form (b) leaves CSV's costs in place, or as the ecosystem's shape regardless (row 11).
 5. **`barplot` in TraitMakie,** so that the plot matches Python's.
 6. **Form (c),** the binary, when binaries are taken up again.
