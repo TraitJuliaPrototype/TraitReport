@@ -5,6 +5,8 @@
 #
 # Python:  pandas + matplotlib, ../experiments/interfaces/python/app.py, venv at $PYENV.
 # Julia:   form (a) scripts/report_script.jl (env/), form (a′) scripts/report_plain.jl (env_p/),
+#          form (t) scripts/report_tables.jl (env_t/: TraitCSV, TraitTables, TraitMakie),
+#          form (pt) scripts/report_plaintables.jl (env_pt/: PlainTables, the same without traits),
 #          form (b) scripts/report_traits.jl (env_b/),
 #          on stock 1.13.2 and on the patched build, called by the binary, not through juliaup.
 # Each environment must be precompiled first by each Julia (the patched build keeps its own images).
@@ -41,15 +43,17 @@ phases() {
         printf " | exit %.3f | wall %.3f\n", e - $NF, e - s }'
 }
 
-for J in "$STOCK" "$PATCHED"; do
+for J in ${JULIAS:-"$STOCK" "$PATCHED"}; do
     for form in $FORMS; do
         if [ "$form" = a ]; then env=env; script=scripts/report_script.jl; names="imports read summarize plot+PNG"
         elif [ "$form" = p ]; then env=env_p; script=scripts/report_plain.jl; names="imports report"
+        elif [ "$form" = pt ]; then env=env_pt; script=scripts/report_plaintables.jl; names="imports read summarize plot+PNG"
+        elif [ "$form" = t ]; then env=env_t; script=scripts/report_tables.jl; names="imports read summarize plot+PNG"
         else env=env_b; script=scripts/report_traits.jl; names="imports report"; fi
         echo "-- julia $J, form ($form)"
         for i in $(seq "$RUNS"); do
             s=$(date +%s.%N)
-            p=$(flock "$LOCK" nice -n 10 "$J" --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
+            p=$(flock "$LOCK" nice -n 10 "$J" ${JFLAGS:-} --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
             e=$(date +%s.%N)
             echo "$p" | grep -v '^T ' | head -3
             echo "$p" | phases "$s" "$e" "$names"

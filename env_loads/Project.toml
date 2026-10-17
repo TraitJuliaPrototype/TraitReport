@@ -1,4 +1,10 @@
 [deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+InlineStrings = "842dd82b-1e85-43dc-bf29-5d0ee9dffc48"
+PlainTables = "1102d1ff-35f4-4fde-be9f-6b10dfddd5e0"
+TraitCSV = "e712023c-2e26-4d3a-87f2-b4bc91f10df5"
+TraitTables = "948581bb-3251-4b70-b92e-dfd8fc23d030"
 PlainReport = "29fffa36-c930-46b1-aa96-624e82e7868a"
 TraitReport = "06355070-4422-4395-a03e-ddff99087cd7"
 TraitMakie = "46a11cac-d2c9-498a-a901-1fb9b8611426"
@@ -13,6 +19,9 @@ Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [sources]
+PlainTables = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport/PlainTables"}
+TraitCSV = {path = "/home/hellmann/Repos/julia-trait-bound/TraitCSV"}
+TraitTables = {path = "/home/hellmann/Repos/julia-trait-bound/TraitTables"}
 PlainReport = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport/PlainReport"}
 TraitReport = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport"}
 TraitMakie = {path = "/home/hellmann/Repos/julia-trait-bound/TraitMakie"}

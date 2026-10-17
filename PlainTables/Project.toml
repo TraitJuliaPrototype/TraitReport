@@ -1,0 +1,7 @@
+name = "PlainTables"
+uuid = "1102d1ff-35f4-4fde-be9f-6b10dfddd5e0"
+version = "0.0.1"
+authors = ["Frank Hellmann"]
+
+[deps]
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
