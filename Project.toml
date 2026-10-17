@@ -1,0 +1,26 @@
+name = "TraitReport"
+uuid = "06355070-4422-4395-a03e-ddff99087cd7"
+version = "0.0.1"
+authors = ["Frank Hellmann"]
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+TraitMakie = "46a11cac-d2c9-498a-a901-1fb9b8611426"
+TraitWorld = "7a3c1e52-9b4d-4f6e-8a21-5d0c3b9e7f14"
+
+[sources]
+TraitMakie = {path = "../TraitMakie"}
+TraitWorld = {path = "../TraitWorld"}
+
+[compat]
+CSV = "1.1"
+DataFrames = "1.8"
+julia = "1.13"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

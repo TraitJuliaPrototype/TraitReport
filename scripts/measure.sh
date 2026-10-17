@@ -1,16 +1,18 @@
 #!/bin/bash
 # Fresh-process timings of TraitReport against the Python baseline.
 #
-#     scripts/measure.sh [runs]          # default 3 runs each
+#     scripts/measure.sh [runs] [forms]      # default 3 runs; forms "a b" (both)
 #
 # Python:  pandas + matplotlib, ../experiments/interfaces/python/app.py, venv at $PYENV.
-# Julia:   form (a), scripts/report_script.jl, on stock 1.13.2 and on the patched build.
-# Julia is called by its binary, not through juliaup. The environment must be precompiled first
-# (by each Julia: the patched build keeps its own images), in an ordinary session.
-# The machine is shared: one Julia job at a time (flock), niced.
+# Julia:   form (a) scripts/report_script.jl (env/), form (b) scripts/report_traits.jl (env_b/),
+#          on stock 1.13.2 and on the patched build, called by the binary, not through juliaup.
+# Each environment must be precompiled first by each Julia (the patched build keeps its own images).
+# The scripts print the absolute times of their marks; startup and exit are taken against this
+# script's wall clock. The machine is shared: one Julia job at a time (flock), niced.
 set -u
 cd "$(dirname "$0")/.."
 RUNS=${1:-3}
+FORMS=${2:-"a b"}
 ROOT=/home/hellmann/Repos/julia-trait-bound
 CSV=$ROOT/experiments/interfaces/App/data/sample.csv
 PYENV=${PYENV:-/tmp/claude-1000/pyenv}
@@ -29,15 +31,26 @@ for i in $(seq "$RUNS"); do
     echo "$p | wall $(echo "$e - $s" | bc)"
 done
 
+# phases from the marks "T t1 t2 ...": startup = t1 - s, then the differences, exit = e - last
+phases() {
+    awk -v s="$1" -v e="$2" -v names="$3" '/^T / {
+        n = split(names, nm, " ")
+        printf "startup %.3f", $2 - s
+        for (i = 3; i <= NF; i++) printf " | %s %.3f", nm[i-2], $i - $(i-1)
+        printf " | exit %.3f | wall %.3f\n", e - $NF, e - s }'
+}
+
 for J in "$STOCK" "$PATCHED"; do
-    echo "-- julia $J, form (a)"
-    for i in $(seq "$RUNS"); do
-        s=$(date +%s.%N)
-        p=$(flock "$LOCK" nice -n 10 "$J" --startup-file=no --project=env scripts/report_script.jl "$CSV" "$OUT/jl.png" 2>&1 >/dev/null | tail -1)
-        e=$(date +%s.%N)
-        echo "$p" | awk -v s="$s" -v e="$e" '{
-            for (i = 1; i <= NF; i++) { if ($i == "start") st = $(i+1); if ($i == "end") en = $(i+1) }
-            line = $0; sub(/^start [^ ]+ /, "", line); sub(/ end [^ ]+$/, "", line)
-            printf "startup %.3f | %s | exit %.3f | wall %.3f\n", st - s, line, e - en, e - s }'
+    for form in $FORMS; do
+        if [ "$form" = a ]; then env=env; script=scripts/report_script.jl; names="imports read summarize plot+PNG"
+        else env=env_b; script=scripts/report_traits.jl; names="imports report"; fi
+        echo "-- julia $J, form ($form)"
+        for i in $(seq "$RUNS"); do
+            s=$(date +%s.%N)
+            p=$(flock "$LOCK" nice -n 10 "$J" --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
+            e=$(date +%s.%N)
+            echo "$p" | grep -v '^T ' | head -3
+            echo "$p" | phases "$s" "$e" "$names"
+        done
     done
 done

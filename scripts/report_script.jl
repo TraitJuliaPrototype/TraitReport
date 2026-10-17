@@ -8,8 +8,8 @@
 # TraitMakie has no barplot yet: the histogram is drawn as a step line.
 #
 # Each phase is a top-level statement, so it is compiled when it is reached and its time includes
-# its compilation. Prints absolute start and end times, so that the harness can derive the
-# process's startup and exit times from its own wall clock (scripts/measure.sh).
+# its compilation. Prints the absolute times of its marks, from which the harness derives the
+# phases and the process's startup and exit times against its own wall clock (scripts/measure.sh).
 T = [time()]
 using CSV, DataFrames, Statistics, TraitMakie
 push!(T, time())
@@ -36,5 +36,5 @@ m = mean(x)
 lines!(f, [m, m], [0.0, cmax]; color = :red)
 save(ARGS[2], f)
 push!(T, time())
-d = round.(diff(T); digits = 3)
-println(stderr, "start $(T[1]) imports $(d[1]) read $(d[2]) summarize $(d[3]) plot+PNG $(d[4]) end $(T[end])")
+# raw times only: the harness subtracts (computing here would compile `diff` and `round` after the last mark)
+println(stderr, "T ", T[1], " ", T[2], " ", T[3], " ", T[4], " ", T[5])
