@@ -1,15 +1,18 @@
-# Form (p2) of TraitReport, the fair baseline of form (t): the same plain script over PlainTables
+# Form (pt) of TraitReport, the fair baseline of form (t): the same plain script over PlainTables
 # (TraitTables and TraitCSV without traits, the same workload) and TraitMakie.
 #
-#     julia --startup-file=no --project=env_pt scripts/report_plaintables.jl <csv> <out.png>
+#     julia --startup-file=no --project=env_pt scripts/report_plaintables.jl <csv> <out.png> [String15]
 T = [time()]
 using PlainTables, TraitMakie
+const STRINGS = get(ARGS, 3, "") == "String15"
+STRINGS && @eval using InlineStrings: String15
 push!(T, time())
-t = readcsv(ARGS[1])
+t = STRINGS ? readcsv(ARGS[1]; types = Type[Int, Float64, String15, String]) : readcsv(ARGS[1])
 push!(T, time())
 print(summary_text(t))
 push!(T, time())
-x = floats(t, colnames(t)[1])
+name = numericnames(t)[1]
+x = floats(t, name; skipmissing = true)
 f = hist(x; bins = 24, title = basename(ARGS[1]), size = (1200, 800))
 vlines!(f, sum(x) / length(x); color = :red)
 save(ARGS[2], f)
