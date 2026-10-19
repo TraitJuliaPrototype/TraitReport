@@ -4,7 +4,7 @@ A data report: read a CSV file into a table, summarize its columns, plot a histo
 
 ## Status (session 29, 2026-10-19)
 
-- **Form (t) is complete for the plan's rows, as correctness.** Three datasets: the task's file (three `Float64` columns); a second shape with missing cells in four columns and a strings column (`data/sensors.csv`); a strings column read as InlineStrings' `String15` through TraitCSV's conformance in a package extension (`data/items.csv`).
+- **Form (t) is complete for the plan's rows, as correctness.** Three datasets: the task's file (three `Float64` columns); a second shape with missing cells in four columns and a strings column (`data/sensors.csv`); a strings column read as InlineStrings' `String15` through TraitCSV's implementation in a package extension (`data/items.csv`).
 - **The control is equivalent.** PlainTables prints the same summary and TraitMakie draws the same PNG as form (t), for each dataset (`scripts/check.sh`).
 - **A scripted REPL session** reads, plots, changes the plot, reads the second shape, adds a column of the user's own type, reads `String15` strings and makes a plot of another type (`scripts/session.sh`, eight checks, all ok). It found one bug: displaying a table with a `String15` column raised a `TypeError` (`string` of a `String15` is a `String15`, and the printer asserts `String`). TraitTables' `cellstring` is fixed (`String(string(cell))`, TraitTables `src/TableCore.jl`) and TraitCSV has a test for it. Both suites and the session (8 of 8) pass on the facts+traits compiler.
 - **Form (f)**, the report over the forks of CSV, DataFrames and Tables, is written (`scripts/report_forks.jl`, `env_f/`) and **has never run**: Julia runs stopped (the user's instruction, session 29) before the forks were tried. See "Form (f)".
@@ -17,9 +17,9 @@ A data report: read a CSV file into a table, summarize its columns, plot a histo
 The criterion: interactivity as the user perceives it. A slow import followed by instant work is fine; a warning that teaches counts as a win. So the headline is the work after the imports, not a fresh process's wall time against Python.
 
 - **The work after `using` was instant, in every load order** (session 27, form (t)): read, summary, histogram and PNG in 66–80 ms with nine other packages loaded before or after, and none of the three libraries' compiled code lost. Imports 0.29–0.33 s. (The protection from loads is the facts mode's until the control runs the plain libraries under `--compile-by-facts=all`; review of 2026-10-18.) *Session 29:* form (t) under loads was not rerun. The control ran PlainTables with TraitMakie under `all` and found the protection is the facts mode's, for any code. Form (b) under loads took 333–410 ms with StatsBase or Distributions loaded, against 41 ms without: "Measured in session 29".
-- **A package extension became a conformance.** InlineStrings' `String15` joins the reader by one declaration in TraitCSV's extension; loading InlineStrings discards none of the reader's compiled code. CSV.jl's extension adds methods to CSV's internal functions instead, and its first read after DataFrames took 2.5 s against 0.19 s alone (session 26). Shown again in session 29 at the prompt.
+- **A package extension became an implementation.** InlineStrings' `String15` joins the reader by one declaration in TraitCSV's extension; loading InlineStrings discards none of the reader's compiled code. CSV.jl's extension adds methods to CSV's internal functions instead, and its first read after DataFrames took 2.5 s against 0.19 s alone (session 26). Shown again in session 29 at the prompt.
 - **A second shape of data needs nothing new.** Missing cells are two more column types (`Union{Missing, Int}`, `Union{Missing, Float64}`) that the reader tries after the plain ones; the table's code runs per column type.
-- **Mistakes teach.** `floats(t, "s1")` on a column with missing cells raises "cell 2 is missing: pass skipmissing = true to leave missing cells out". A column type that conforms to nothing is refused at the bound; a conformance by a package that owns neither the trait nor the type is refused (TraitCSV's tests).
+- **Mistakes teach.** `floats(t, "s1")` on a column with missing cells raises "cell 2 is missing: pass skipmissing = true to leave missing cells out". A column type that conforms to nothing is refused at the bound; an implementation by a package that owns neither the trait nor the type is refused (TraitCSV's tests).
 - **Not the headline:** form (t)'s fresh process, 0.52–0.56 s against Python's 0.58–0.69 s (session 27). Its fair baseline (pt), the same libraries without traits, took 0.50–0.52 s: small precompiled libraries reach Python's time with or without traits. *Session 29:* (t) 0.76 s, (pt) 0.72 s, both above Python's 0.58–0.69 s of session 27; Python was not rerun.
 
 ## The task
@@ -69,14 +69,14 @@ Other scripts: `check.sh` (forms (t) and (pt) on the three datasets), `session.j
 | 8 | compiled code lost to those loads | — | (t) none of TraitCSV's, TraitTables' and TraitMakie's; (pt) 17 of 49 methods |
 | 9 | trimmed binary | — | not built |
 | 10 | a 10⁶-row file | — | (t) 0.35 s, pandas 0.23 s (1.5×) |
-| 11 | a strings column through an extension's conformance | `String15` at the prompt and in `check.sh`; (t) and (pt) agree | 0.69–0.71 s in a first session, 44 ms later (with a view cache); CSV.jl 3.9–5.0 s every session |
+| 11 | a strings column through an extension's implementation | `String15` at the prompt and in `check.sh`; (t) and (pt) agree | 0.69–0.71 s in a first session, 44 ms later (with a view cache); CSV.jl 3.9–5.0 s every session |
 | 12 | a second shape: missing cells, a strings column | (t) and (pt) print the same summary and draw the same PNG | — |
 | 13 | a column type of the user's own joins a read table | at the prompt (`Ramp`), summaries and sorting run | — |
 | 14 | the report over the forks | form (f) written, **untested**; see "Form (f)" | — |
 
 The "Earlier" column is history, before the facts compiler. The session-29 numbers are in "Measured in session 29".
 
-Whose property, after the review of 2026-10-18 (`../writeup/reviews/2026-10-18-implementation-shape.md` §5): rows 7 and 8 are the facts mode's (the compiler's) until the plain libraries run under `all`; row 11's mechanism is half traits' (a declared conformance instead of methods on internal functions) and half the facts mode's; rows 12 and 13 are traits' (a column type is a conformance; a new key compiles its own worker); row 1 shows no difference between the forms. (Session 29: the control ran PlainTables and TraitMakie under `all`; rows 7 and 8 are the facts mode's property. See "Measured in session 29".)
+Whose property, after the review of 2026-10-18 (`../writeup/reviews/2026-10-18-implementation-shape.md` §5): rows 7 and 8 are the facts mode's (the compiler's) until the plain libraries run under `all`; row 11's mechanism is half traits' (a declared implementation instead of methods on internal functions) and half the facts mode's; rows 12 and 13 are traits' (a column type joins by an implementation; a new key compiles its own worker); row 1 shows no difference between the forms. (Session 29: the control ran PlainTables and TraitMakie under `all`; rows 7 and 8 are the facts mode's property. See "Measured in session 29".)
 
 ## Form (f): the forks
 
