@@ -9,18 +9,18 @@ A data report: read a CSV file into a table, summarize its columns, plot a histo
 - **A scripted REPL session** reads, plots, changes the plot, reads the second shape, adds a column of the user's own type, reads `String15` strings and makes a plot of another type (`scripts/session.sh`, eight checks, all ok). It found one bug: displaying a table with a `String15` column raised a `TypeError` (`string` of a `String15` is a `String15`, and the printer asserts `String`). TraitTables' `cellstring` is fixed (`String(string(cell))`, TraitTables `src/TableCore.jl`) and TraitCSV has a test for it. Both suites and the session (8 of 8) pass on the facts+traits compiler.
 - **Form (f)**, the report over the forks of CSV, DataFrames and Tables, is written (`scripts/report_forks.jl`, `env_f/`) and **has never run**: Julia runs stopped (the user's instruction, session 29) before the forks were tried. See "Form (f)".
 - **Built on the facts+traits compiler:** julia-1.13 61852d8fb1 with TraitWorld 375a930. Julia's compiler compiles the trait modules by facts, and `Dynamic` operations are call-site splits (part D). `scripts/check.sh` (three datasets, (t) = (pt)), the REPL session and the libraries' suites pass there.
-- **Measured in session 29**, in fresh processes: "Measured in session 29" below. The design repository's [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §3 has the same numbers, with the build and the caveats. Python's baseline was not rerun.
+- **Measured in session 29** (the build of 2026-10-19), in fresh processes: "Measured in session 29" below, this file's dated results. **The current numbers** are in the design repository's [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §3, from the measurement round of 2026-10-20 (julia-1.13 3b8085c222, TraitWorld bed3782), which reran Python's baseline in a newly built environment.
 - The other numbers in this file are from sessions 26–27, under TraitWorld's prototype policy: history, before the facts compiler.
 
 ## The headline, by the user's criterion
 
 The criterion: interactivity as the user perceives it. A slow import followed by instant work is fine; a warning that teaches counts as a win. So the headline is the work after the imports, not a fresh process's wall time against Python.
 
-- **The work after `using` was instant, in every load order** (session 27, form (t)): read, summary, histogram and PNG in 66–80 ms with nine other packages loaded before or after, and none of the three libraries' compiled code lost. Imports 0.29–0.33 s. (The protection from loads is the facts mode's until the control runs the plain libraries under `--compile-by-facts=all`; review of 2026-10-18.) *Session 29:* form (t) under loads was not rerun. The control ran PlainTables with TraitMakie under `all` and found the protection is the facts mode's, for any code. Form (b) under loads took 333–410 ms with StatsBase or Distributions loaded, against 41 ms without: "Measured in session 29".
+- **The work after `using` was instant, in every load order** (session 27, form (t)): read, summary, histogram and PNG in 66–80 ms with nine other packages loaded before or after, and none of the three libraries' compiled code lost. Imports 0.29–0.33 s. (The protection from loads is the facts mode's until the control runs the plain libraries under `--compile-by-facts=all`; review of 2026-10-18.) *Session 29:* form (t) under loads was not rerun. The control ran PlainTables with TraitMakie under `all` and found the protection is the facts mode's, for any code. Form (b) under loads took 333–410 ms with StatsBase or Distributions loaded, against 41 ms without: "Measured in session 29". In the round of 2026-10-20 (julia-1.13 3b8085c222): 344–417 ms against 41 ms ([evidence](../writeup/design/evidence.md) §3).
 - **A package extension became an implementation.** InlineStrings' `String15` joins the reader by one declaration in TraitCSV's extension; loading InlineStrings discards none of the reader's compiled code. CSV.jl's extension adds methods to CSV's internal functions instead, and its first read after DataFrames took 2.5 s against 0.19 s alone (session 26). Shown again in session 29 at the prompt.
 - **A second shape of data needs nothing new.** Missing cells are two more column types (`Union{Missing, Int}`, `Union{Missing, Float64}`) that the reader tries after the plain ones; the table's code runs per column type.
 - **Mistakes teach.** `floats(t, "s1")` on a column with missing cells raises "cell 2 is missing: pass skipmissing = true to leave missing cells out". A column type that conforms to nothing is refused at the bound; an implementation by a package that owns neither the trait nor the type is refused (TraitCSV's tests).
-- **Not the headline:** form (t)'s fresh process, 0.52–0.56 s against Python's 0.58–0.69 s (session 27). Its fair baseline (pt), the same libraries without traits, took 0.50–0.52 s: small precompiled libraries reach Python's time with or without traits. *Session 29:* (t) 0.76 s, (pt) 0.72 s, both above Python's 0.58–0.69 s of session 27; Python was not rerun.
+- **Not the headline:** form (t)'s fresh process, 0.52–0.56 s against Python's 0.58–0.69 s (session 27). Its fair baseline (pt), the same libraries without traits, took 0.50–0.52 s: small precompiled libraries reach Python's time with or without traits. *Session 29:* (t) 0.76 s, (pt) 0.72 s, both above Python's 0.58–0.69 s of session 27. *The round of 2026-10-20* (julia-1.13 3b8085c222, TraitWorld bed3782; [evidence](../writeup/design/evidence.md) §3): (t) 0.79–0.81 s, (pt) 0.77 s, Python rerun in a newly built environment (pandas 3.0.6, matplotlib 3.11.2) 0.58–0.59 s.
 
 ## The task
 
@@ -99,7 +99,7 @@ Whose property, after the review of 2026-10-18 (`../writeup/reviews/2026-10-18-i
 
 ## Measured in session 29
 
-From [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §3: julia-1.13 61852d8fb1, TraitWorld 375a930, the patched build. One machine, shared with other jobs.
+A dated table: julia-1.13 61852d8fb1, TraitWorld 375a930 (the build of 2026-10-19), the patched build. One machine, shared with other jobs. The current numbers, from the round of 2026-10-20, Python's included: [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §3.
 
 **Fresh processes** (`scripts/measure.sh`, the task's file, 3 runs):
 
@@ -107,11 +107,11 @@ From [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §
 |---|---|---|---|---|
 | (t) TraitCSV, TraitTables, TraitMakie | 0.53–0.54 s | 6–7 ms | 60 ms | **0.76 s** |
 | (pt) the same without traits | 0.49–0.50 s | 4 ms | 60 ms | **0.72 s** |
-| Python, pandas + matplotlib (session 27; not rerun) | | | | 0.58–0.69 s |
+| Python, pandas + matplotlib (session 27; rerun in the round of 2026-10-20, evidence §3) | | | | 0.58–0.69 s |
 
-**Under loads** (form (b) against its plain twin (a′), `scripts/loads.sh`): the trait form's work 41 ms (none, REPL), 333–410 ms with StatsBase or Distributions loaded (the SparseArrays pirate, below), 338–342 ms with all nine; the plain form 237–3,086 ms. The trait form's `using` is 0.18–0.20 s above the plain form's.
+**Under loads** (form (b) against its plain twin (a′), `scripts/loads.sh`): the trait form's work 41 ms (none, REPL), 333–410 ms with StatsBase or Distributions loaded (SparseArrays' `vcat`, below), 338–342 ms with all nine; the plain form 237–3,086 ms. The trait form's `using` is 0.18–0.20 s above the plain form's.
 
-- The SparseArrays pirate: StatsBase loads SparseArrays, whose `vcat` for Base's `Number` and `Vector` wins at a fact signature inside `CSV._parse`. The facts mode follows it by design. Strict mode would refuse it.
+- SparseArrays' `vcat`: StatsBase loads SparseArrays, a standard library, whose `vcat` for Base's `Number` and `Vector` wins at a fact signature inside `CSV._parse`. The design counts the standard libraries as Julia's own code, so this is a stakeholder's change, not a pirate: the facts mode follows it by design, and strict mode does not refuse it ([evidence](../writeup/design/evidence.md) §1). Whether standard libraries should be separate owners is open (`../writeup/open-issues.md` §1.19).
 - Form (b) calls upstream CSV.jl from trait code. It is not form (t).
 
 **The control: whose property is load protection** (`evidence.md` §1). The same work, then nine unrelated packages loaded (OffsetArrays, StatsBase, Unitful, IntervalArithmetic, Distributions, Interpolations, StaticArrays, CairoMakie, REPL), plain mode against `--compile-by-facts=all`:
@@ -124,7 +124,6 @@ From [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §
 - Load protection is the facts rule's property, for any code, not traits'.
 
 **Not measured yet:**
-- Python's baseline (its virtual environment was lost from `/tmp`).
 - Form (t) under the nine loads, like for like with session 27's form (t), and compiled code lost by (t) (rows 7, 8).
 - Every row at the REPL (`scripts/session.jl` as the driver): the rows above ran in fresh processes.
 - The work after imports for (pt) and (t) on the second and third datasets (rows 2, 12); form (f), which has never run.
