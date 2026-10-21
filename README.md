@@ -51,7 +51,7 @@ Forms (t), (pt) and (f) take a third argument `String15`, which loads InlineStri
 Other scripts: `check.sh` (forms (t) and (pt) on the three datasets), `session.jl` and `session.sh` (the REPL session), `measure.sh` (fresh-process timings), `loads.sh`, `report_loads.jl`, `invalidated.jl` and `env_loads/` (rows 7, 8), `row10.jl` and `row10.py` (a 10⁶-row file), `row11.jl` (the strings row), `gendata.py`.
 
 **The libraries.**
-- **TraitTables:** a `Column{T}` trait (`nrows`, `cell`), which every `Vector` conforms to, missing cells included; a `Table` of names and `Vector{Dynamic{Column}}` columns; selection, row selection, sorting, summaries that count missing cells, printing.
+- **TraitTables:** a `Column{T}` trait (`nrows`, `cell`), which every `Vector` conforms to, missing cells included; a `Table` of names and `Vector{Column}` columns, each kept with its attribute; selection, row selection, sorting, summaries that count missing cells, printing.
 - **TraitCSV:** a `CSVColumn{T} <: Column` trait (`parsecell!`, `emptylike`) for the columns the reader can parse into: `Vector{Int}`, `Vector{Float64}`, the two with missing cells, `Vector{String}`; InlineStrings' `String15` in an extension. Per column, the reader tries the candidate column types in order, each attempt a worker compiled per column type.
 - **PlainTables:** both without traits: columns as `Vector{AbstractVector}`, a function barrier per column, candidate column types as types; the same workload and the same output.
 
@@ -136,7 +136,7 @@ A dated table: julia-1.13 61852d8fb1, TraitWorld 375a930 (the build of 2026-10-1
 ## What TraitWorld should provide
 
 - **A bounded function cannot name the trait's associated type.** `summarize(c::Column, name)` would print the column's cell type `T` (`Union{Missing, Float64}`), but there is no `where {T}` for a bound. TraitTables names the type from the cells instead (the first cell's type, as `Union{Missing, …}` when cells are missing), and PlainTables does the same, so the two agree. A column of a missing-capable type without missing cells is then named by its cells' type.
-- From TraitMakie (`../TraitMakie/README.md`): a generic `convert(::Type{Dynamic{X}}, x)`, forwarding for a whole family, and bound errors that list the conforming types.
+- From TraitMakie (`../TraitMakie/README.md`): a generic conversion of a plain value to `Kept{X}`, forwarding for a whole family, and bound errors that list the conforming types.
 
 ## Running
 
