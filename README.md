@@ -142,4 +142,4 @@ A dated table: julia-1.13 61852d8fb1, TraitWorld 375a930 (the build of 2026-10-1
 
 - `scripts/check.sh`: forms (t) and (pt) on the three datasets.
 - `scripts/session.sh`: the REPL session.
-- On the shared machine: one Julia job at a time, niced, under the shared lock; `JULIA_TW_VIEWCACHE=0`.
+- On the shared machine: one Julia job at a time, niced, under the shared lock.
