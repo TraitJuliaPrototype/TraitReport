@@ -24,6 +24,8 @@ PATCHED=${PATCHED:-$ROOT/julia-1.13/julia}
 LOCK=${JULIA_LOCK:-/tmp/claude-1000/-home-hellmann-Repos-julia-trait-bound/6c8f1719-6fc1-42fb-a8dc-c45452eef443/scratchpad/julia.lock}
 OUT=${TMPDIR:-/tmp}/traitreport; mkdir -p "$OUT"
 export JULIA_PKG_OFFLINE=true MPLCONFIGDIR=$OUT/mpl
+GATE=${JULIA_GATE:-/tmp/claude-1000/jl/gate.lock}   # experiments/tools/jl's gate: held, no new slot job starts
+[ -d "$(dirname "$GATE")" ] && exec 7>>"$GATE" || exec 7>/dev/null
 exec 9>>"$LOCK"  # the lock's descriptor; each Julia run takes it before its clock starts
 
 echo "-- python (pandas + matplotlib)"
@@ -53,11 +55,11 @@ for J in ${JULIAS:-"$STOCK" "$PATCHED"}; do
         else env=env_b; script=scripts/report_traits.jl; names="imports report"; fi
         echo "-- julia $J, form ($form)"
         for i in $(seq "$RUNS"); do
-            flock 9     # the lock first, then the clock: a wait for another job is not the run's start
+            flock 7; flock 9     # the gate and the lock first (every slot job finished), then the clock: a wait for another job is not the run's start
             s=$(date +%s.%N)
             p=$(nice -n 10 "$J" ${JFLAGS:-} --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
             e=$(date +%s.%N)
-            flock -u 9
+            flock -u 9; flock -u 7
             echo "$p" | grep -v '^T ' | head -3
             echo "$p" | phases "$s" "$e" "$names"
         done
