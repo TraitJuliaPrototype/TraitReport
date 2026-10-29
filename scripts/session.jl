@@ -42,5 +42,5 @@ _ok("a strings column (String15)", describe(it)[1].eltype == "String15" && descr
 nm = numericnames(s); means = [c.mean for c in describe(s) if c.numeric];
 b = barplot(collect(1.0:length(nm)), means; title = "means")
 text!(b, collect(1.0:length(nm)), means .+ 0.2, nm; align = :center)
-save(png("means"), b); _ok("a plot of another type", filesize(png("means")) > 1000 && length(b.axis.plots) == 2)
+save(png("means"), b); _ok("a plot of another type", filesize(png("means")) > 1000 && length(b.axes[1].plots) == 2)
 _ok("session done", true)
