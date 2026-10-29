@@ -24,7 +24,7 @@ print(summary_text(s))
 d = describe(s);
 _ok("a second shape", [c.eltype for c in d] == ["Float64", "Union{Missing, Float64}", "Union{Missing, Float64}", "Union{Missing, Float64}", "Union{Missing, Int64}", "String"] && [c.nmissing for c in d] == [0, 16, 21, 16, 13, 0])
 # a mistake teaches: missing cells, and the message names the fix
-floats(s, "s1")
+floats(s, "s1")   # ERROR expected
 s1 = floats(s, "s1"; skipmissing = true);
 _ok("missing cells left out", length(s1) == 484)
 # a new data type: a column type of the user's own
