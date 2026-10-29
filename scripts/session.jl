@@ -33,7 +33,8 @@ TraitTables.nrows(r::Ramp) = r.n
 TraitTables.cell(r::Ramp, i::Int) = 0.5 * i
 @implement Column Ramp
 addcolumn!(s, "ramp", Ramp(nrow(s)))
-_ok("a new column type", describe(s)[end].mean == 0.5 * (nrow(s) + 1) / 2 && sortby(s, "ramp")["ramp"] isa Dynamic{Column})
+r = sortby(s, "ramp");   # the sorted table's columns are new, each kept with its attribute (a Kept{Column})
+_ok("a new column type", describe(s)[end].mean == 0.5 * (nrow(s) + 1) / 2 && r["ramp"] isa Kept{Column} && floats(r, "ramp") == 0.5 .* (1:nrow(s)))
 # strings through InlineStrings: TraitCSV's conformance for String15 arrives in an extension
 using InlineStrings
 it = TraitCSV.read(joinpath(D, "items.csv"); types = [Int[], Float64[], String15[], String[]])
