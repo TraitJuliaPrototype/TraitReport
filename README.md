@@ -97,6 +97,18 @@ Whose property, after the review of 2026-10-18 (`../writeup/reviews/2026-10-18-i
 - `scripts/check.sh` again (it passed on all three datasets before the fix, which does not touch its paths).
 - Form (f), as listed under "Form (f)".
 
+## Phase 2's starting point (2026-10-29, E-233, E-234)
+
+julia-1.13 bfca89decc, TraitWorld ca92f22, TraitReport 09d7f9b (TraitCSV 9c6477b, TraitTables 438ac2b, TraitMakie 2c70583); `scripts/measure.sh 3 "t pt"` on the patched build, the first run of each form a warm-up; pandas 3.0.6 and matplotlib 3.11.2 on the same machine. Logs and the breakdown: `../experiments/phase2-round/` (its README). Current numbers: [the evidence](../writeup/design/evidence.md) §3.
+
+| | startup | imports | read | summarize | plot+PNG | exit | wall |
+|---|---|---|---|---|---|---|---|
+| pandas + matplotlib | | 0.42–0.44 s | 0.001 s | 0.001 s | 0.10 s | | **0.61–0.62 s** |
+| form (t) | 0.10 s | 0.36 s | 0.006 s | 0.012–0.013 s | 0.063 s | 0.09 s | **0.63 s** |
+| form (pt) | 0.10 s | 0.33 s | 0.004 s | 0.000 s | 0.073 s | 0.08–0.09 s | **0.59–0.60 s** |
+
+An emulated cache across sessions (E-234) would bring form (t) to about 0.59 s.
+
 ## Measured in session 29
 
 A dated table: julia-1.13 61852d8fb1, TraitWorld 375a930 (the build of 2026-10-19), the patched build. One machine, shared with other jobs. The current numbers, from the round of 2026-10-20, Python's included: [`../writeup/design/evidence.md`](../writeup/design/evidence.md) §1 and §3.
