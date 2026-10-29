@@ -24,6 +24,7 @@ PATCHED=${PATCHED:-$ROOT/julia-1.13/julia}
 LOCK=${JULIA_LOCK:-/tmp/claude-1000/-home-hellmann-Repos-julia-trait-bound/6c8f1719-6fc1-42fb-a8dc-c45452eef443/scratchpad/julia.lock}
 OUT=${TMPDIR:-/tmp}/traitreport; mkdir -p "$OUT"
 export JULIA_PKG_OFFLINE=true MPLCONFIGDIR=$OUT/mpl
+exec 9>>"$LOCK"  # the lock's descriptor; each Julia run takes it before its clock starts
 
 echo "-- python (pandas + matplotlib)"
 "$PYENV/bin/python" $ROOT/experiments/interfaces/python/app.py "$CSV" "$OUT/py.png" >/dev/null 2>&1   # matplotlib's font cache
@@ -52,9 +53,11 @@ for J in ${JULIAS:-"$STOCK" "$PATCHED"}; do
         else env=env_b; script=scripts/report_traits.jl; names="imports report"; fi
         echo "-- julia $J, form ($form)"
         for i in $(seq "$RUNS"); do
+            flock 9     # the lock first, then the clock: a wait for another job is not the run's start
             s=$(date +%s.%N)
-            p=$(flock "$LOCK" nice -n 10 "$J" ${JFLAGS:-} --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
+            p=$(nice -n 10 "$J" ${JFLAGS:-} --startup-file=no --project=$env $script "$CSV" "$OUT/jl_$form.png" 2>&1 >/dev/null)
             e=$(date +%s.%N)
+            flock -u 9
             echo "$p" | grep -v '^T ' | head -3
             echo "$p" | phases "$s" "$e" "$names"
         done
