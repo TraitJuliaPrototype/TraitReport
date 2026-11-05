@@ -19,10 +19,10 @@ Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [sources]
-PlainTables = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport/PlainTables"}
-TraitCSV = {path = "/home/hellmann/Repos/julia-trait-bound/TraitCSV"}
-TraitTables = {path = "/home/hellmann/Repos/julia-trait-bound/TraitTables"}
-PlainReport = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport/PlainReport"}
-TraitReport = {path = "/home/hellmann/Repos/julia-trait-bound/TraitReport"}
-TraitMakie = {path = "/home/hellmann/Repos/julia-trait-bound/TraitMakie"}
-TraitWorld = {path = "/home/hellmann/Repos/julia-trait-bound/TraitWorld"}
+PlainTables = {path = "../PlainTables"}
+TraitCSV = {path = "../../TraitCSV"}
+TraitTables = {path = "../../TraitTables"}
+PlainReport = {path = "../PlainReport"}
+TraitReport = {path = ".."}
+TraitMakie = {path = "../../TraitMakie"}
+TraitWorld = {path = "../../TraitWorld"}

@@ -8,7 +8,7 @@
 #     scripts/check.sh
 set -u
 cd "$(dirname "$0")/.."
-ROOT=/home/hellmann/Repos/julia-trait-bound
+ROOT=${TW_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}
 J=${JULIA:-$ROOT/julia-1.13/julia}
 LOCK=${LOCK:-/tmp/claude-1000/julia-review.lock}
 OUT=${TMPDIR:-/tmp}/traitreport_check; mkdir -p "$OUT"

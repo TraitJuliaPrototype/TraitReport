@@ -16,7 +16,7 @@ set -u
 cd "$(dirname "$0")/.."
 RUNS=${1:-3}
 FORMS=${2:-"a b"}
-ROOT=/home/hellmann/Repos/julia-trait-bound
+ROOT=${TW_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}
 CSV=$ROOT/experiments/interfaces/App/data/sample.csv
 PYENV=${PYENV:-/tmp/claude-1000/pyenv}
 STOCK=${STOCK:-$HOME/.julia/juliaup/julia-1.13.2+0.x64.linux.gnu/bin/julia}
