@@ -2,6 +2,12 @@
 
 A data report: read a CSV file into a table, summarize its columns, plot a histogram to a PNG. The third demonstrator. It is the task where Julia users feel time to first plot most, measured against pandas and matplotlib doing the same. The libraries under it are TraitCSV and TraitTables (`../TraitCSV`, `../TraitTables`, trait-world reader and table), TraitMakie (`../TraitMakie`), and, in one form, the forks of CSV, DataFrames and Tables (`../forks`).
 
+## On the unified build (branch `unified`, W-104)
+
+This branch follows the design under "traits are abstract types" on Julia's unified build (`julia-unified`, branch `unified`), with TraitWorld's branch `unified`. The sections below describe the earlier build (branch `main`).
+
+- Form (t) runs on the unified ports: `env_t/` and `env_pt/` name the `-unified` siblings. Its summary and PNG are identical to the plain form's (2026-11-08, `unified` f90d152208; `experiments/unification/stack/logs/w104-slice1-TraitReport.log`). The timing scripts (`scripts/measure.sh`, `check.sh`) default to the earlier build; set `JULIA` or `PATCHED` to `julia-unified/julia`.
+
 ## Status (session 29, 2026-10-19)
 
 - **Form (t) is complete for the plan's rows, as correctness.** Three datasets: the task's file (three `Float64` columns); a second shape with missing cells in four columns and a strings column (`data/sensors.csv`); a strings column read as InlineStrings' `String15` through TraitCSV's implementation in a package extension (`data/items.csv`).
