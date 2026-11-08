@@ -6,6 +6,7 @@ A data report: read a CSV file into a table, summarize its columns, plot a histo
 
 This branch follows the design under "traits are abstract types" on Julia's unified build (`julia-unified`, branch `unified`), with TraitWorld's branch `unified`. The sections below describe the earlier build (branch `main`).
 
+- **Form (f)** (the forks of CSV, DataFrames and Tables with TraitMakie: the goal's task, DataFrames + Makie) runs on the unified ports, `env_fu/`: its summary and PNG equal form (t)'s, 26.4–27.0 s against Python's 0.65 s, 25.5–26.1 s of it imports (2026-11-08, W-121's E-288; the numbers: the design's evidence §3).
 - Form (t) runs on the unified ports: `env_t/` and `env_pt/` name the `-unified` siblings. Its summary and PNG are identical to the plain form's (2026-11-08, `unified` f90d152208; `experiments/unification/stack/logs/w104-slice1-TraitReport.log`). The timing scripts (`scripts/measure.sh`, `check.sh`) default to the earlier build; set `JULIA` or `PATCHED` to `julia-unified/julia`.
 
 ## Status (session 29, 2026-10-19)
