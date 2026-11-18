@@ -9,7 +9,7 @@
 set -u
 cd "$(dirname "$0")/.."
 ROOT=${TW_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}
-J=${JULIA:-$ROOT/julia-1.13/julia}
+J=${JULIA:-$ROOT/julia-next/julia}
 LOCK=${LOCK:-/tmp/claude-1000/julia-review.lock}
 OUT=${TMPDIR:-/tmp}/traitreport_check; mkdir -p "$OUT"
 export JULIA_PKG_OFFLINE=true JULIA_TW_VIEWCACHE=0
