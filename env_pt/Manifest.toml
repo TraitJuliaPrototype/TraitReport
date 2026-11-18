@@ -283,13 +283,13 @@ version = "1.0.3"
 
 [[deps.TraitMakie]]
 deps = ["Cairo", "TraitWorld"]
-path = "../../TraitMakie-unified"
+path = "../../TraitMakie"
 uuid = "46a11cac-d2c9-498a-a901-1fb9b8611426"
 version = "0.0.1"
 
 [[deps.TraitWorld]]
 deps = ["Dates", "LinearAlgebra"]
-path = "../../TraitWorld-unified"
+path = "../../TraitWorld"
 uuid = "7a3c1e52-9b4d-4f6e-8a21-5d0c3b9e7f14"
 version = "0.2.0"
 
