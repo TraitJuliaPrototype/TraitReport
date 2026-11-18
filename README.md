@@ -28,8 +28,8 @@ The traits of form (t) are TraitTables' `Column` and TraitCSV's `CSVColumn` (see
 ## How it uses the design
 
 - `Table` and `Job` erase nothing by default (no `@default_dynamic`), and no box or wrapper is made: the report's methods are compiled for `Columns` and `ReportJob`.
-- Not yet on the design's one way to erase: the REPL session checks that a sorted column is a `Kept{Column}` (`scripts/session.jl`). Form (t) runs on TraitTables and TraitCSV, which cast with `compiled_for(…)`. This is recorded as deviation T-128 of the traits reference.
-- `src/TraitReport.jl` calls `TraitWorld.@workload`, which the library does not define.
+- Form (t) runs on TraitTables and TraitCSV, whose loops pass each column as it is: each column's code is compiled for the column's type (see their READMEs). The REPL session checks that a sorted column is a new vector, a plain member of `Column` (`scripts/session.jl`).
+- `src/TraitReport.jl` calls `TraitWorld.@workload`, which the library does not define, so form (b)'s package does not load. Julia's own form is the one TraitTables, TraitCSV and TraitMakie use: `if ccall(:jl_generating_output, Cint, ()) == 1 … end` at the module's end.
 
 ## Running
 
@@ -48,6 +48,7 @@ The current numbers, each against plain Julia or Python, are in the design repos
 
 - **Form (f)** (the forks of CSV, DataFrames and Tables with TraitMakie: the goal's task, DataFrames + Makie) runs on the unified ports, `env_fu/`: its summary and PNG equal form (t)'s, 26.4–27.0 s against Python's 0.65 s, 25.5–26.1 s of it imports (2026-11-08, W-121's E-288; the numbers: the design's evidence §3).
 - Form (t) runs on the unified ports: `env_t/` and `env_pt/` name the `-unified` siblings. Its summary and PNG are identical to the plain form's (2026-11-08, `unified` f90d152208; `experiments/implementation/stack/logs/w104-slice1-TraitReport.log`). The timing scripts (`scripts/measure.sh`, `check.sh`) default to the earlier build; set `JULIA` or `PATCHED` to `julia-unified/julia`.
+- On `julia-next`: `scripts/check.sh` 3 of 3 ok (forms (t) and (pt) print the same summary and draw the same PNG on the three datasets); the REPL session 8 of 8 checks ok, with the one expected error (2026-11-18, `next` 02139b2168, TraitWorld 3e64ede; `experiments/implementation/w156/logs/after-report.log`, `after-report-session.log`).
 
 ## The design
 
