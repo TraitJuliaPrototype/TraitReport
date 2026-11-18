@@ -19,7 +19,7 @@ function report(input::AbstractString, output::AbstractString; io::IO = stdout)
 end
 
 # a precompile workload: the whole report, on a small file like the demonstration's
-if ccall(:jl_generating_output, Cint, ()) == 1
+if Base.generating_output(true)
     dir = mktempdir()
     csv = joinpath(dir, "workload.csv")
     open(csv, "w") do f
