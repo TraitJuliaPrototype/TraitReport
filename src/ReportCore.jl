@@ -3,8 +3,9 @@
 # the workers reach included (case D of writeup/notes/3-wrapping.md). A later load can discard
 # that code only where the loaded package is a stakeholder of one of its dispatch facts, or brings
 # a pirate that wins at one.
-@trait_module module ReportCore
+module ReportCore
 using TraitWorld
+@trait_module
 using CSV: CSV
 using DataFrames: DataFrames, DataFrame
 using Statistics: mean, std
